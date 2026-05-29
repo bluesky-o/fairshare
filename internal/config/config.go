@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	AppEnv  string
-    AppPort string
+	AppEnv       string
+    AppPort      string
+	DatabasePath string
 }
 
 func Load() *Config {
@@ -22,6 +23,7 @@ func Load() *Config {
 	return &Config {
 		AppEnv: getEnv("APP_ENV", "development"),
 		AppPort: getEnv("APP_PORT", "8080"),
+		DatabasePath: getEnv("DATABASE_PATH", "./data/fairshare.db"),
 	}
 }
 

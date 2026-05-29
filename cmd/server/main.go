@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/bluesky-o/fairshare/internal/config"
+	"github.com/bluesky-o/fairshare/internal/database"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -14,6 +15,19 @@ func main() {
 	fmt.Println("hello world")
 
 	cfg := config.Load()
+	db, err := database.Connect(cfg.DatabasePath)
+
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+
+	defer db.Close()
+
+	err = db.RunMigrations("internal/database/migrations/001_initial_schema.sql")
+
+	if err != nil {
+		log.Fatalf("failed to run migration %v", err)
+	}
 
 	r := chi.NewRouter()
 
