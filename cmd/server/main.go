@@ -8,6 +8,9 @@ import (
 
 	"github.com/bluesky-o/fairshare/internal/config"
 	"github.com/bluesky-o/fairshare/internal/database"
+	"github.com/bluesky-o/fairshare/internal/handlers"
+	"github.com/bluesky-o/fairshare/internal/repository"
+	"github.com/bluesky-o/fairshare/internal/services"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -29,12 +32,20 @@ func main() {
 		log.Fatalf("failed to run migration %v", err)
 	}
 
+	userRepo := repository.NewUserRepository(db)
+	userService := services.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
+
 	r := chi.NewRouter()
 
 	r.Get("/health", func (w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{ "status": "ok", "message": "FairShare API is running" }` + "\n"))
+	})
+
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Get("/user/test", userHandler.Test)
 	})
 
 	server := &http.Server{
