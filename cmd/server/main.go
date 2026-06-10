@@ -6,12 +6,15 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bluesky-o/fairshare/pkg/firebase"
+	"github.com/go-chi/chi/v5"
+
 	"github.com/bluesky-o/fairshare/internal/config"
 	"github.com/bluesky-o/fairshare/internal/database"
 	"github.com/bluesky-o/fairshare/internal/handlers"
+	authmiddleware "github.com/bluesky-o/fairshare/internal/middleware"
 	"github.com/bluesky-o/fairshare/internal/repository"
 	"github.com/bluesky-o/fairshare/internal/services"
-	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -32,6 +35,12 @@ func main() {
 		log.Fatalf("failed to run migration %v", err)
 	}
 
+	firebaseClient, err := firebase.NewClient(cfg.FirebaseServiceAccountPath)
+
+	if err != nil {
+		log.Fatalf("failed to initilize firebase: %v", err)
+	}
+
 	userRepo := repository.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
@@ -45,6 +54,7 @@ func main() {
 	})
 
 	r.Route("/api/v1", func(r chi.Router) {
+		r.Use(authmiddleware.Authenticate(firebaseClient))
 		r.Get("/user/test", userHandler.Test)
 	})
 

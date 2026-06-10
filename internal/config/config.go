@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	AppEnv       string
-    AppPort      string
-	DatabasePath string
+	AppEnv                     string
+    AppPort                    string
+	DatabasePath               string
+	FirebaseServiceAccountPath string
 }
 
 func Load() *Config {
@@ -24,6 +25,7 @@ func Load() *Config {
 		AppEnv: getEnv("APP_ENV", "development"),
 		AppPort: getEnv("APP_PORT", "8080"),
 		DatabasePath: getEnv("DATABASE_PATH", "./data/fairshare.db"),
+		FirebaseServiceAccountPath: getEnv("FIREBASE_SERVICE_ACCOUNT_PATH", ""),
 	}
 }
 
