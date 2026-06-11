@@ -71,3 +71,32 @@ func (r *UserRepository) GetByFirebaseUID(ctx context.Context, firebaseUID strin
 
 	return user, nil
 }
+
+func (r *UserRepository) GetByID(ctx context.Context, id string) (*models.User, error) {
+	query := `
+		SELECT id, firebase_uid, email, display_name, avatar_url, created_at
+		FROM users
+		WHERE id = ?
+		LIMIT 1
+	`
+
+	user := &models.User{}
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.FirebaseUID,
+		&user.Email,
+		&user.DisplayName,
+		&user.AvatarURL,
+		&user.CreatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by id: %w", id)
+	}
+
+	return user, nil
+}
