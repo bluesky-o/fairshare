@@ -95,7 +95,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*models.User, 
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user by id: %w", id)
+		return nil, fmt.Errorf("failed to get user by id: %w", err)
 	}
 
 	return user, nil
