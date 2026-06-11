@@ -40,6 +40,15 @@ func Authenticate(firebaseClient *firebase.Client) func (http.Handler) http.Hand
 	}
 }
 
+func GetUserID(r *http.Request) string {
+	uid, ok := r.Context().Value(UserIDKey).(string)
+	if !ok {
+		return ""
+	}
+
+	return uid
+}
+
 func writeUnauthorized(w http.ResponseWriter, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized) 

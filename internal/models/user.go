@@ -10,3 +10,9 @@ type User struct {
     AvatarURL   string    `json:"avatar_url,omitempty"`
     CreatedAt   time.Time `json:"created_at"`
 }
+type RegisterRequest struct {
+    FirebaseUID string `json:"firebase_uid"` // set by handler, not client
+    Email       string `json:"email"`
+    DisplayName string `json:"display_name"`
+    AvatarURL   string `json:"avatar_url,omitempty"`
+}
