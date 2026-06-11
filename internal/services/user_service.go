@@ -65,6 +65,14 @@ func (s *UserService) GetProfile(ctx context.Context, userID string) (*models.Us
 	return user, nil
 }
 
+func (s *UserService) UpdateProfile(ctx context.Context, userID string, req *models.UpdateProfileRequest) (*models.User, error) {
+	if req.DisplayName == "" {
+		return nil, fmt.Errorf("dispaly name cannot be empty")
+	}
+
+	return s.userRepo.Update(ctx, userID, strings.TrimSpace(req.DisplayName), strings.TrimSpace(req.AvatarURL))
+}
+
 func validateRegisterRequest(req *models.RegisterRequest) error {
 	if strings.TrimSpace(req.FirebaseUID) == "" {
 		return fmt.Errorf("firebase_uid is required")

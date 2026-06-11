@@ -58,6 +58,7 @@ func main() {
 		r.Get("/user/test", userHandler.Test)
 		r.Post("/auth/register", userHandler.Register)
 		r.Get("/users/me", userHandler.GetMe)
+		r.Put("/users/me", userHandler.UpdateMe)
 	})
 
 	server := &http.Server{

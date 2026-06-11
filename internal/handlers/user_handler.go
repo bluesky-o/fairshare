@@ -52,3 +52,19 @@ func (h *UserHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusOK, user)
 }
+
+func (h *UserHandler) UpdateMe(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	var req models.UpdateProfileRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+	}
+
+	user, err := h.userService.UpdateProfile(r.Context(), userID, &req)
+	if err != nil {
+		writeError(w, http.StatusBadGateway, err.Error())
+	}
+
+	writeSuccess(w, http.StatusOK, user)
+}
