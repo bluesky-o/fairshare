@@ -51,6 +51,20 @@ func (s *UserService) RegisterOrLogin(ctx context.Context, req *models.RegisterR
 	return created, nil
 }
 
+func (s *UserService) GetProfile(ctx context.Context, userID string) (*models.User, error) {
+	user, err := s.userRepo.GetByID(ctx, userID)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get profile: %w", err)
+	}
+
+	if user == nil {
+		return nil, fmt.Errorf("user not fount")
+	}
+
+	return user, nil
+}
+
 func validateRegisterRequest(req *models.RegisterRequest) error {
 	if strings.TrimSpace(req.FirebaseUID) == "" {
 		return fmt.Errorf("firebase_uid is required")
