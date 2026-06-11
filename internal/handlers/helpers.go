@@ -20,9 +20,9 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	})
 }
 
-func writeSuccess(w http.ResponseWriter, status int, message string) {
+func writeSuccess(w http.ResponseWriter, status int, data interface{}) {
 	writeJSON(w, status, models.APIResponse{
 		Success: true,
-		Data: message,
+		Data: data,
 	})
 }

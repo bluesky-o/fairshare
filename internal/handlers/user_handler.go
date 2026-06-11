@@ -28,6 +28,17 @@ func (h *UserHandler) Register (w http.ResponseWriter, r *http.Request) {
 
 	var req models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
 	}
+
+	req.FirebaseUID = firebaseUID
+
+	user, err := h.userService.RegisterOrLogin(r.Context(), &req)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, user)
 }

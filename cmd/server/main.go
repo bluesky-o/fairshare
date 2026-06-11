@@ -56,6 +56,7 @@ func main() {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Use(authmiddleware.Authenticate(firebaseClient))
 		r.Get("/user/test", userHandler.Test)
+		r.Post("/auth/register", userHandler.Register)
 	})
 
 	server := &http.Server{
