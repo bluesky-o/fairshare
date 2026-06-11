@@ -100,3 +100,18 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*models.User, 
 
 	return user, nil
 }
+
+func (r *UserRepository) Update(ctx context.Context, id string, displayName string, avatarURL string) (*models.User, error) {
+	query := `
+		UPDATE users
+		SET display_name = ?, avatar_url = ?
+		WHERE id = ?
+	`
+
+	_, err := r.db.ExecContext(ctx, query, displayName, avatarURL, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return r.GetByID(ctx, id)
+}
