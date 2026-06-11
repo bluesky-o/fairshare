@@ -16,3 +16,8 @@ type RegisterRequest struct {
     DisplayName string `json:"display_name"`
     AvatarURL   string `json:"avatar_url,omitempty"`
 }
+
+type UpdateProfileRequest struct {
+    DisplayName string `json:"display_name"`
+    AvatarURL   string `json:"avatar_url,omitempty"`
+}
