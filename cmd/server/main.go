@@ -57,6 +57,7 @@ func main() {
 		r.Use(authmiddleware.Authenticate(firebaseClient))
 		r.Get("/user/test", userHandler.Test)
 		r.Post("/auth/register", userHandler.Register)
+		r.Get("/users/me", userHandler.GetMe)
 	})
 
 	server := &http.Server{

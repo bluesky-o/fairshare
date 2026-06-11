@@ -42,3 +42,13 @@ func (h *UserHandler) Register (w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusOK, user)
 }
+
+func (h *UserHandler) GetMe(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+	user, err := h.userService.GetProfile(r.Context(), userID)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "user not found")
+	}
+
+	writeSuccess(w, http.StatusOK, user)
+}
