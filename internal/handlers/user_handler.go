@@ -68,3 +68,24 @@ func (h *UserHandler) UpdateMe(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusOK, user)
 }
+
+func (h *UserHandler) FindByEmail(w http.ResponseWriter, r *http.Request) {
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		writeError(w, http.StatusBadRequest, "email query parameter is required")
+		return
+	}
+
+	user, err := h.userService.FindByEmail(r.Context(), email)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if user == nil {
+		writeError(w, http.StatusNotFound, "no user found with this email")
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, user)
+}

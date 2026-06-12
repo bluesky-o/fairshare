@@ -115,3 +115,31 @@ func (r *UserRepository) Update(ctx context.Context, id string, displayName stri
 
 	return r.GetByID(ctx, id)
 }
+
+func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*models.User, error) {
+	query := `
+		SELECT id, firebase_uid, email, display_name, avatar_url, created_at
+		FROM users
+		WHERE email = ?
+		LIMIT 1
+	`
+
+	user := &models.User{}
+	err := r.db.QueryRowContext(ctx, query, email).Scan(
+		&user.ID,
+		&user.FirebaseUID,
+		&user.Email,
+		&user.DisplayName,
+		&user.AvatarURL,
+		&user.CreatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by email: %w", err)
+	}
+
+	return user, nil
+}
