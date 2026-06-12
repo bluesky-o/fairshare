@@ -59,6 +59,7 @@ func main() {
 		r.Post("/auth/register", userHandler.Register)
 		r.Get("/users/me", userHandler.GetMe)
 		r.Put("/users/me", userHandler.UpdateMe)
+		r.Get("/users/search", userHandler.FindByEmail)
 	})
 
 	server := &http.Server{

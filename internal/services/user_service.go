@@ -73,6 +73,14 @@ func (s *UserService) UpdateProfile(ctx context.Context, userID string, req *mod
 	return s.userRepo.Update(ctx, userID, strings.TrimSpace(req.DisplayName), strings.TrimSpace(req.AvatarURL))
 }
 
+func (s *UserService) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+	user, err := s.userRepo.GetByEmail(ctx, strings.ToLower(strings.TrimSpace(email)))
+	if err != nil {
+		return nil, fmt.Errorf("failed to search user: %w", err)
+	}
+	return user, nil
+}
+
 func validateRegisterRequest(req *models.RegisterRequest) error {
 	if strings.TrimSpace(req.FirebaseUID) == "" {
 		return fmt.Errorf("firebase_uid is required")
