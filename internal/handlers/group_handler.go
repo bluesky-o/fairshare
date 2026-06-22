@@ -100,3 +100,23 @@ func (h *GroupHandler) UpdateGroup(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusOK, group)
 }
+
+func (h *GroupHandler) DeleteGroup(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	groupID, err := getGroupID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid group id")
+		return
+	}
+
+	if err := h.groupService.DeleteGroup(r.Context(), userID, groupID); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, map[string]string{
+		"message": "group deleted successfully",
+	})
+}
+
