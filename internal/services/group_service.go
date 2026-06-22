@@ -74,3 +74,15 @@ func (s *GroupService) UpdateGroup(ctx context.Context, userID string, groupID i
 
 	return s.groupRepo.Update(ctx, groupID, name, strings.TrimSpace(req.Description))
 }
+
+func (s *GroupService) DeleteGroup(ctx context.Context, userID string, groupID int64) error {
+	role, err := s.groupRepo.GetMemberRole(ctx, groupID, userID)
+	if err != nil {
+		return err
+	}
+	if role != "admin" {
+		return fmt.Errorf("only admins can delete the group")
+	}
+
+	return s.groupRepo.Delete(ctx, groupID)
+}

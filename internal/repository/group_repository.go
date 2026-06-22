@@ -185,3 +185,13 @@ func (r *GroupRepository) Update(ctx context.Context, groupID int64, name, descr
 
 	return r.GetByID(ctx, groupID, "")
 }
+
+func (r *GroupRepository) Delete(ctx context.Context, groupID int64) error {
+	_, err := r.db.ExecContext(ctx, `
+		DELETE FROM groups WHERE id = ?
+	`, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to delete group: %w", err)
+	}
+	return nil
+}

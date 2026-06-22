@@ -67,6 +67,7 @@ func main() {
 		r.Get("/groups", groupHandler.GetMyGroups)
 		r.Get("/groups/{id}", groupHandler.GetGroup)
 		r.Put("/groups/{id}", groupHandler.UpdateGroup)
+		r.Delete("/groups/{id}", groupHandler.DeleteGroup)
 	})
 
 	server := &http.Server{
