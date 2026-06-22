@@ -206,3 +206,14 @@ func (r *GroupRepository) AddMember(ctx context.Context, groupID int64, userID, 
 	}
 	return nil
 }
+
+func (r *GroupRepository) RemoveMember(ctx context.Context, groupID int64, userID string) error {
+	_, err := r.db.ExecContext(ctx, `
+		DELETE FROM group_members
+		WHERE group_id = ? AND user_id = ?
+	`, groupID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to remove member: %w", err)
+	}
+	return nil
+}

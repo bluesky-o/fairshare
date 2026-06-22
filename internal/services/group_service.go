@@ -119,3 +119,35 @@ func (s *GroupService) AddMember(ctx context.Context, requestingUserID string, g
 
 	return s.groupRepo.GetByID(ctx, groupID, requestingUserID)
 }
+
+func (s *GroupService) RemoveMember(ctx context.Context, requestingUserID string, groupID int64, targetUserID string) error {
+	requestingRole, err := s.groupRepo.GetMemberRole(ctx, groupID, requestingUserID)
+	if err != nil {
+		return err
+	}
+	if requestingRole == "" {
+		return fmt.Errorf("group not found")
+	}
+
+	if requestingRole != "admin" && requestingUserID != targetUserID {
+		return fmt.Errorf("you can only remove yourself from the group")
+	}
+
+	if targetUserID == requestingUserID && requestingRole == "admin" {
+		group, err := s.groupRepo.GetByID(ctx, groupID, requestingUserID)
+		if err != nil {
+			return err
+		}
+		adminCount := 0
+		for _, m := range group.Members {
+			if m.Role == "admin" {
+				adminCount++
+			}
+		}
+		if adminCount == 1 {
+			return fmt.Errorf("cannot remove the only admin, promote another member first")
+		}
+	}
+
+	return s.groupRepo.RemoveMember(ctx, groupID, targetUserID)
+}

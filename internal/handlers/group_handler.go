@@ -143,3 +143,28 @@ func (h *GroupHandler) AddMember(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusOK, group)
 }
+
+func (h *GroupHandler) RemoveMember(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	groupID, err := getGroupID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid group id")
+		return
+	}
+
+	targetUserID := chi.URLParam(r, "uid")
+	if targetUserID == "" {
+		writeError(w, http.StatusBadRequest, "user id is required")
+		return
+	}
+
+	if err := h.groupService.RemoveMember(r.Context(), userID, groupID, targetUserID); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, map[string]string{
+		"message": "member removed successfully",
+	})
+}

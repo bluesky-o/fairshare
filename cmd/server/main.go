@@ -69,6 +69,7 @@ func main() {
 		r.Put("/groups/{id}", groupHandler.UpdateGroup)
 		r.Delete("/groups/{id}", groupHandler.DeleteGroup)
 		r.Post("/groups/{id}/members", groupHandler.AddMember)
+		r.Delete("/groups/{id}/members/{uid}", groupHandler.RemoveMember)
 	})
 
 	server := &http.Server{
