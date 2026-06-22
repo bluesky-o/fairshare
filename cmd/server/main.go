@@ -64,6 +64,7 @@ func main() {
 		r.Put("/users/me", userHandler.UpdateMe)
 		r.Get("/users/search", userHandler.FindByEmail)
 		r.Post("/groups", groupHandler.CreateGroup)
+		r.Get("/groups", groupHandler.GetMyGroups)
 	})
 
 	server := &http.Server{

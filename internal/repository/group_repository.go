@@ -111,3 +111,40 @@ func (r *GroupRepository) GetByID(ctx context.Context, groupID int64, requesting
 
 	return group, nil
 }
+
+func (r *GroupRepository) GetAllForUser(ctx context.Context, userID string) ([]models.Group, error) {
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT 
+			g.id,
+			g.name,
+			g.description,
+			g.created_by_user_id,
+			g.created_at
+		FROM groups g
+		JOIN group_members gm ON gm.group_id = g.id
+		WHERE gm.user_id = ?
+		ORDER BY g.created_at DESC
+	`, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user groups: %w", err)
+	}
+	defer rows.Close()
+
+	groups := []models.Group{}
+	for rows.Next() {
+		var g models.Group
+		err := rows.Scan(
+			&g.ID,
+			&g.Name,
+			&g.Description,
+			&g.CreatedBy,
+			&g.CreatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan group: %w", err)
+		}
+		groups = append(groups, g)
+	}
+
+	return groups, nil
+}

@@ -34,3 +34,15 @@ func (h *GroupHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusCreated, group)
 }
+
+func (h *GroupHandler) GetMyGroups(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	groups, err := h.groupService.GetMyGroups(r.Context(), userID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, groups)
+}

@@ -33,3 +33,7 @@ func (s *GroupService) CreateGroup(ctx context.Context, userID string, req *mode
 
 	return s.groupRepo.Create(ctx, name, strings.TrimSpace(req.Description), userID)
 }
+
+func (s *GroupService) GetMyGroups(ctx context.Context, userID string) ([]models.Group, error) {
+	return s.groupRepo.GetAllForUser(ctx, userID)
+}
