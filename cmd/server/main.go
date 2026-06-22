@@ -44,6 +44,9 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
+	groupRepo := repository.NewGroupRepository(db)
+	groupService := services.NewGroupService(groupRepo, userRepo)
+	groupHandler := handlers.NewGroupHandler(groupService)
 
 	r := chi.NewRouter()
 
@@ -60,6 +63,7 @@ func main() {
 		r.Get("/users/me", userHandler.GetMe)
 		r.Put("/users/me", userHandler.UpdateMe)
 		r.Get("/users/search", userHandler.FindByEmail)
+		r.Post("/groups", groupHandler.CreateGroup)
 	})
 
 	server := &http.Server{
