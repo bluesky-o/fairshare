@@ -120,3 +120,26 @@ func (h *GroupHandler) DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *GroupHandler) AddMember(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	groupID, err := getGroupID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid group id")
+		return
+	}
+
+	var req models.AddMemberRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	group, err := h.groupService.AddMember(r.Context(), userID, groupID, &req)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, group)
+}

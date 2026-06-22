@@ -86,3 +86,36 @@ func (s *GroupService) DeleteGroup(ctx context.Context, userID string, groupID i
 
 	return s.groupRepo.Delete(ctx, groupID)
 }
+
+func (s *GroupService) AddMember(ctx context.Context, requestingUserID string, groupID int64, req *models.AddMemberRequest) (*models.Group, error) {
+	isMember, err := s.groupRepo.IsMember(ctx, groupID, requestingUserID)
+	if err != nil {
+		return nil, err
+	}
+	if !isMember {
+		return nil, fmt.Errorf("group not found")
+	}
+
+	userToAdd, err := s.userRepo.GetByEmail(ctx, strings.ToLower(strings.TrimSpace(req.Email)))
+	if err != nil {
+		return nil, err
+	}
+	if userToAdd == nil {
+		return nil, fmt.Errorf("no user found with email %s", req.Email)
+	}
+
+	alreadyMember, err := s.groupRepo.IsMember(ctx, groupID, userToAdd.ID)
+	if err != nil {
+		return nil, err
+	}
+	if alreadyMember {
+		return nil, fmt.Errorf("user is already a member of this group")
+	}
+
+	err = s.groupRepo.AddMember(ctx, groupID, userToAdd.ID, "member")
+	if err != nil {
+		return nil, err
+	}
+
+	return s.groupRepo.GetByID(ctx, groupID, requestingUserID)
+}

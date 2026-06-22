@@ -29,3 +29,7 @@ type UpdateGroupRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 }
+
+type AddMemberRequest struct {
+	Email string `json:"email"`
+}
