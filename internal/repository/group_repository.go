@@ -195,3 +195,14 @@ func (r *GroupRepository) Delete(ctx context.Context, groupID int64) error {
 	}
 	return nil
 }
+
+func (r *GroupRepository) AddMember(ctx context.Context, groupID int64, userID, role string) error {
+	_, err := r.db.ExecContext(ctx, `
+		INSERT INTO group_members (group_id, user_id, role)
+		VALUES (?, ?, ?)
+	`, groupID, userID, role)
+	if err != nil {
+		return fmt.Errorf("failed to add member: %w", err)
+	}
+	return nil
+}
