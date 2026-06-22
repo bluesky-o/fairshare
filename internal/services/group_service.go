@@ -37,3 +37,23 @@ func (s *GroupService) CreateGroup(ctx context.Context, userID string, req *mode
 func (s *GroupService) GetMyGroups(ctx context.Context, userID string) ([]models.Group, error) {
 	return s.groupRepo.GetAllForUser(ctx, userID)
 }
+
+func (s *GroupService) GetGroup(ctx context.Context, userID string, groupID int64) (*models.Group, error) {
+	group, err := s.groupRepo.GetByID(ctx, groupID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if group == nil {
+		return nil, fmt.Errorf("group not found")
+	}
+
+	isMember, err := s.groupRepo.IsMember(ctx, groupID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if !isMember {
+		return nil, fmt.Errorf("group not found")
+	}
+
+	return group, nil
+}
