@@ -57,3 +57,20 @@ func (s *GroupService) GetGroup(ctx context.Context, userID string, groupID int6
 
 	return group, nil
 }
+
+func (s *GroupService) UpdateGroup(ctx context.Context, userID string, groupID int64, req *models.UpdateGroupRequest) (*models.Group, error) {
+	name := strings.TrimSpace(req.Name)
+	if name == "" {
+		return nil, fmt.Errorf("group name is required")
+	}
+
+	role, err := s.groupRepo.GetMemberRole(ctx, groupID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if role != "admin" {
+		return nil, fmt.Errorf("only admins can update the group")
+	}
+
+	return s.groupRepo.Update(ctx, groupID, name, strings.TrimSpace(req.Description))
+}

@@ -76,3 +76,27 @@ func (h *GroupHandler) GetGroup(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusOK, group)
 }
+
+func (h *GroupHandler) UpdateGroup(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	groupID, err := getGroupID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid group id")
+		return
+	}
+
+	var req models.UpdateGroupRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	group, err := h.groupService.UpdateGroup(r.Context(), userID, groupID, &req)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, group)
+}
