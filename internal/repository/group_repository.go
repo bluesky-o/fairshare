@@ -148,3 +148,27 @@ func (r *GroupRepository) GetAllForUser(ctx context.Context, userID string) ([]m
 
 	return groups, nil
 }
+
+func (r *GroupRepository) GetMemberRole(ctx context.Context, groupID int64, userID string) (string, error) {
+	var role string
+	err := r.db.QueryRowContext(ctx, `
+		SELECT role FROM group_members
+		WHERE group_id = ? AND user_id = ?
+	`, groupID, userID).Scan(&role)
+
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	if err != nil {
+		return "", fmt.Errorf("failed to get member role: %w", err)
+	}
+	return role, nil
+}
+
+func (r *GroupRepository) IsMember(ctx context.Context, groupID int64, userID string) (bool, error) {
+	role, err := r.GetMemberRole(ctx, groupID, userID)
+	if err != nil {
+		return false, err
+	}
+	return role != "", nil
+}

@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/bluesky-o/fairshare/internal/middleware"
 	"github.com/bluesky-o/fairshare/internal/models"
 	"github.com/bluesky-o/fairshare/internal/services"
+	"github.com/go-chi/chi/v5"
 )
 
 type GroupHandler struct {
@@ -15,6 +18,15 @@ type GroupHandler struct {
 
 func NewGroupHandler(groupService *services.GroupService) *GroupHandler {
 	return &GroupHandler{groupService: groupService}
+}
+
+func getGroupID(r *http.Request) (int64, error) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid group id")
+	}
+	return id, nil
 }
 
 func (h *GroupHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
@@ -45,4 +57,22 @@ func (h *GroupHandler) GetMyGroups(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeSuccess(w, http.StatusOK, groups)
+}
+
+func (h *GroupHandler) GetGroup(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	groupID, err := getGroupID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid group id")
+		return
+	}
+
+	group, err := h.groupService.GetGroup(r.Context(), userID, groupID)
+	if err != nil {
+		writeError(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, group)
 }
