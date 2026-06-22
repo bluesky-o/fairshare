@@ -24,3 +24,8 @@ type CreateGroupRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 }
+
+type UpdateGroupRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+}

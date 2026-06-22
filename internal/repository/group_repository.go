@@ -172,3 +172,16 @@ func (r *GroupRepository) IsMember(ctx context.Context, groupID int64, userID st
 	}
 	return role != "", nil
 }
+
+func (r *GroupRepository) Update(ctx context.Context, groupID int64, name, description string) (*models.Group, error) {
+	_, err := r.db.ExecContext(ctx, `
+		UPDATE groups
+		SET name = ?, description = ?
+		WHERE id = ?
+	`, name, description, groupID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update group: %w", err)
+	}
+
+	return r.GetByID(ctx, groupID, "")
+}
