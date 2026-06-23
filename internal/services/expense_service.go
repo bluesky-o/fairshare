@@ -93,3 +93,23 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, userID string, gr
 
 	return s.expenseRepo.GetAllForGroup(ctx, groupID)
 }
+
+func (s *ExpenseService) GetExpense(ctx context.Context, userID string, expenseID int64) (*models.Expense, error) {
+	expense, err := s.expenseRepo.GetByID(ctx, expenseID)
+	if err != nil {
+		return nil, err
+	}
+	if expense == nil {
+		return nil, fmt.Errorf("expense not found")
+	}
+
+	isMember, err := s.groupRepo.IsMember(ctx, expense.GroupID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if !isMember {
+		return nil, fmt.Errorf("expense not found")
+	}
+
+	return expense, nil
+}
