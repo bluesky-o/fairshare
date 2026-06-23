@@ -193,3 +193,51 @@ func (r *ExpenseRepository) GetAllForGroup(ctx context.Context, groupID int64) (
 
 	return expenses, nil
 }
+
+func (r *ExpenseRepository) Update(ctx context.Context, expenseID int64, req *models.UpdateExpenseRequest, calculatedSplits []models.SplitInput) (*models.Expense, error) {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	_, err = tx.ExecContext(ctx, `
+		UPDATE expenses
+		SET title = ?, amount = ?, category = ?, 
+		    split_type = ?, paid_by_user_id = ?
+		WHERE id = ?
+	`,
+		req.Title,
+		req.Amount,
+		req.Category,
+		req.SplitType,
+		req.PaidByUserID,
+		expenseID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update expense: %w", err)
+	}
+
+	_, err = tx.ExecContext(ctx, `
+		DELETE FROM expense_splits WHERE expense_id = ?
+	`, expenseID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete old splits: %w", err)
+	}
+
+	for _, split := range calculatedSplits {
+		_, err := tx.ExecContext(ctx, `
+			INSERT INTO expense_splits (expense_id, user_id, owed_amount)
+			VALUES (?, ?, ?)
+		`, expenseID, split.UserID, split.OwedAmount)
+		if err != nil {
+			return nil, fmt.Errorf("failed to insert split: %w", err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("failed to commit: %w", err)
+	}
+
+	return r.GetByID(ctx, expenseID)
+}
