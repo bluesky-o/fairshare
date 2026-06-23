@@ -75,6 +75,7 @@ func main() {
 		r.Delete("/groups/{id}/members/{uid}", groupHandler.RemoveMember)
 		r.Post("/groups/{id}/expenses", expenseHandler.CreateExpense)
 		r.Get("/groups/{id}/expenses", expenseHandler.GetGroupExpenses)
+		r.Get("/expenses/{expenseId}", expenseHandler.GetExpense)
 	})
 
 	server := &http.Server{
