@@ -77,6 +77,7 @@ func main() {
 		r.Get("/groups/{id}/expenses", expenseHandler.GetGroupExpenses)
 		r.Get("/expenses/{expenseId}", expenseHandler.GetExpense)
 		r.Put("/expenses/{expenseId}", expenseHandler.UpdateExpense)
+		r.Delete("/expenses/{expenseId}", expenseHandler.DeleteExpense)
 	})
 
 	server := &http.Server{

@@ -112,3 +112,22 @@ func (h *ExpenseHandler) UpdateExpense(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusOK, expense)
 }
+
+func (h *ExpenseHandler) DeleteExpense(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	expenseID, err := getExpenseID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid expense id")
+		return
+	}
+
+	if err := h.expenseService.DeleteExpense(r.Context(), userID, expenseID); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, map[string]string{
+		"message": "expense deleted successfully",
+	})
+}

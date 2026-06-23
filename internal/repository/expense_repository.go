@@ -241,3 +241,13 @@ func (r *ExpenseRepository) Update(ctx context.Context, expenseID int64, req *mo
 
 	return r.GetByID(ctx, expenseID)
 }
+
+func (r *ExpenseRepository) Delete(ctx context.Context, expenseID int64) error {
+	_, err := r.db.ExecContext(ctx, `
+		DELETE FROM expenses WHERE id = ?
+	`, expenseID)
+	if err != nil {
+		return fmt.Errorf("failed to delete expense: %w", err)
+	}
+	return nil
+}

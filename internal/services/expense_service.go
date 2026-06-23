@@ -154,3 +154,26 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, userID string, expen
 
 	return s.expenseRepo.Update(ctx, expenseID, req, calculatedSplits)
 }
+
+func (s *ExpenseService) DeleteExpense(ctx context.Context, userID string, expenseID int64) error {
+	expense, err := s.expenseRepo.GetByID(ctx, expenseID)
+	if err != nil {
+		return err
+	}
+	if expense == nil {
+		return fmt.Errorf("expense not found")
+	}
+
+	role, err := s.groupRepo.GetMemberRole(ctx, expense.GroupID, userID)
+	if err != nil {
+		return err
+	}
+	if role == "" {
+		return fmt.Errorf("expense not found")
+	}
+	if expense.PaidByUserID != userID && role != "admin" {
+		return fmt.Errorf("only the expense creator or a group admin can delete this expense")
+	}
+
+	return s.expenseRepo.Delete(ctx, expenseID)
+}
