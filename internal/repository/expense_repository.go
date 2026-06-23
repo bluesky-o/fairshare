@@ -150,3 +150,46 @@ func (r *ExpenseRepository) Create(ctx context.Context, groupID int64, req *mode
 
 	return r.GetByID(ctx, expenseID)
 }
+
+func (r *ExpenseRepository) GetAllForGroup(ctx context.Context, groupID int64) ([]models.Expense, error) {
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT 
+			e.id, e.group_id, e.paid_by_user_id,
+			u.display_name,
+			e.title, e.amount, e.currency,
+			e.category, e.split_type,
+			e.expense_date, e.created_at
+		FROM expenses e
+		JOIN users u ON u.id = e.paid_by_user_id
+		WHERE e.group_id = ?
+		ORDER BY e.expense_date DESC
+	`, groupID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get expenses: %w", err)
+	}
+	defer rows.Close()
+
+	expenses := []models.Expense{}
+	for rows.Next() {
+		var e models.Expense
+		err := rows.Scan(
+			&e.ID,
+			&e.GroupID,
+			&e.PaidByUserID,
+			&e.PaidByName,
+			&e.Title,
+			&e.Amount,
+			&e.Currency,
+			&e.Category,
+			&e.SplitType,
+			&e.ExpenseDate,
+			&e.CreatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan expense: %w", err)
+		}
+		expenses = append(expenses, e)
+	}
+
+	return expenses, nil
+}
