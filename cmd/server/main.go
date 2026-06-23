@@ -76,6 +76,7 @@ func main() {
 		r.Post("/groups/{id}/expenses", expenseHandler.CreateExpense)
 		r.Get("/groups/{id}/expenses", expenseHandler.GetGroupExpenses)
 		r.Get("/expenses/{expenseId}", expenseHandler.GetExpense)
+		r.Put("/expenses/{expenseId}", expenseHandler.UpdateExpense)
 	})
 
 	server := &http.Server{

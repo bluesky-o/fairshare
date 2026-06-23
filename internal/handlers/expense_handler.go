@@ -88,3 +88,27 @@ func (h *ExpenseHandler) GetExpense(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusOK, expense)
 }
+
+func (h *ExpenseHandler) UpdateExpense(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	expenseID, err := getExpenseID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid expense id")
+		return
+	}
+
+	var req models.UpdateExpenseRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	expense, err := h.expenseService.UpdateExpense(r.Context(), userID, expenseID, &req)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, expense)
+}

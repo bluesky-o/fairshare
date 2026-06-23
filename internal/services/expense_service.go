@@ -113,3 +113,44 @@ func (s *ExpenseService) GetExpense(ctx context.Context, userID string, expenseI
 
 	return expense, nil
 }
+
+func (s *ExpenseService) UpdateExpense(ctx context.Context, userID string, expenseID int64, req *models.UpdateExpenseRequest) (*models.Expense, error) {
+	expense, err := s.expenseRepo.GetByID(ctx, expenseID)
+	if err != nil {
+		return nil, err
+	}
+	if expense == nil {
+		return nil, fmt.Errorf("expense not found")
+	}
+
+	role, err := s.groupRepo.GetMemberRole(ctx, expense.GroupID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if role == "" {
+		return nil, fmt.Errorf("expense not found")
+	}
+	if expense.PaidByUserID != userID && role != "admin" {
+		return nil, fmt.Errorf("only the expense creator or a group admin can edit this expense")
+	}
+
+	createReq := &models.CreateExpenseRequest{
+		Title:        req.Title,
+		Amount:       req.Amount,
+		Category:     req.Category,
+		SplitType:    req.SplitType,
+		PaidByUserID: req.PaidByUserID,
+		Splits:       req.Splits,
+	}
+
+	if err := validateExpenseRequest(createReq); err != nil {
+		return nil, err
+	}
+
+	calculatedSplits, err := calculateSplits(createReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.expenseRepo.Update(ctx, expenseID, req, calculatedSplits)
+}

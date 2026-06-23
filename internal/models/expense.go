@@ -43,3 +43,12 @@ type Expense struct {
 	ExpenseDate   time.Time     `json:"expense_date"`
 	CreatedAt     time.Time     `json:"created_at"`
 }
+
+type UpdateExpenseRequest struct {
+	Title       string       `json:"title"`
+	Amount      float64      `json:"amount"`
+	Category    string       `json:"category,omitempty"`
+	SplitType   string       `json:"split_type"`
+	PaidByUserID string      `json:"paid_by_user_id"`
+	Splits      []SplitInput `json:"splits"`
+}
