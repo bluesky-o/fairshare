@@ -81,3 +81,15 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, userID string, group
 
 	return s.expenseRepo.Create(ctx, groupID, req, calculatedSplits)
 }
+
+func (s *ExpenseService) GetGroupExpenses(ctx context.Context, userID string, groupID int64) ([]models.Expense, error) {
+	isMember, err := s.groupRepo.IsMember(ctx, groupID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if !isMember {
+		return nil, fmt.Errorf("group not found")
+	}
+
+	return s.expenseRepo.GetAllForGroup(ctx, groupID)
+}

@@ -40,3 +40,21 @@ func (h *ExpenseHandler) CreateExpense(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccess(w, http.StatusCreated, expense)
 }
+
+func (h *ExpenseHandler) GetGroupExpenses(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+
+	groupID, err := getGroupID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid group id")
+		return
+	}
+
+	expenses, err := h.expenseService.GetGroupExpenses(r.Context(), userID, groupID)
+	if err != nil {
+		writeError(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	writeSuccess(w, http.StatusOK, expenses)
+}
