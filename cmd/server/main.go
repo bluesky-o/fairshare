@@ -47,6 +47,9 @@ func main() {
 	groupRepo := repository.NewGroupRepository(db)
 	groupService := services.NewGroupService(groupRepo, userRepo)
 	groupHandler := handlers.NewGroupHandler(groupService)
+	expenseRepo := repository.NewExpenseRepository(db) 
+	expenseService := services.NewExpenseService(expenseRepo, groupRepo)
+	expenseHandler := handlers.NewExpenseHandler(expenseService) 
 
 	r := chi.NewRouter()
 
@@ -70,6 +73,7 @@ func main() {
 		r.Delete("/groups/{id}", groupHandler.DeleteGroup)
 		r.Post("/groups/{id}/members", groupHandler.AddMember)
 		r.Delete("/groups/{id}/members/{uid}", groupHandler.RemoveMember)
+		r.Post("/groups/{id}/expenses", expenseHandler.CreateExpense)
 	})
 
 	server := &http.Server{
