@@ -49,7 +49,10 @@ func main() {
 	groupHandler := handlers.NewGroupHandler(groupService)
 	expenseRepo := repository.NewExpenseRepository(db) 
 	expenseService := services.NewExpenseService(expenseRepo, groupRepo)
-	expenseHandler := handlers.NewExpenseHandler(expenseService) 
+	expenseHandler := handlers.NewExpenseHandler(expenseService)
+	settlementRepo := repository.NewSettlementRepository(db)
+	balanceService := services.NewBalanceService(settlementRepo, groupRepo, userRepo, expenseRepo)
+	settlementHandler := handlers.NewSettlementHandler(balanceService)
 
 	r := chi.NewRouter()
 
@@ -78,6 +81,7 @@ func main() {
 		r.Get("/expenses/{expenseId}", expenseHandler.GetExpense)
 		r.Put("/expenses/{expenseId}", expenseHandler.UpdateExpense)
 		r.Delete("/expenses/{expenseId}", expenseHandler.DeleteExpense)
+		r.Get("/groups/{id}/balances", settlementHandler.GetGroupBalances)
 	})
 
 	server := &http.Server{
