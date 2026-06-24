@@ -57,3 +57,16 @@ CREATE TABLE IF NOT EXISTS expense_splits (
     FOREIGN KEY (expense_id) REFERENCES expenses(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE
 );
+
+-- Settlements
+CREATE TABLE IF NOT EXISTS settlements (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id      INTEGER NOT NULL,
+    payer_user_id TEXT NOT NULL,
+    payee_user_id TEXT NOT NULL,
+    amount        REAL NOT NULL CHECK(amount > 0),
+    settled_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id)      REFERENCES groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (payer_user_id) REFERENCES users(id)  ON DELETE CASCADE,
+    FOREIGN KEY (payee_user_id) REFERENCES users(id)  ON DELETE CASCADE
+);
